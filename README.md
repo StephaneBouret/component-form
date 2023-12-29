@@ -1,5 +1,5 @@
 # On clone le dépot !
-git clone https://github.com/StephaneBouret/cars-course.git
+git clone https://github.com/StephaneBouret/component-form.git
 
 # On installe les dépendances !
 composer install 
