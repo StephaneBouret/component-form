@@ -1,0 +1,17 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+	<div class="container-fluid">
+		<a class="navbar-brand" href="/">Composant Form</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor04" aria-controls="navbarColor04" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarColor04">
+			<ul class="navbar-nav me-auto">
+				{% for c in categoryRepository.findAll() %}
+					<li class="nav-item">
+						<a class="nav-link" href="{{ path('product_category', {'slug': c.slug}) }}">{{ c.name }}</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+</nav>
