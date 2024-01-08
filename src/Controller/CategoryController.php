@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Category;
 use App\Form\CategoryType;
 use App\Repository\CategoryRepository;
+use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,7 +55,7 @@ class CategoryController extends AbstractController
     }
 
     #[Route('/admin/category/{id}/edit', name: 'category_edit')]
-    public function edit($id, CategoryRepository $categoryRepository, Request $request, EntityManagerInterface $em, SluggerInterface $slugger)
+    public function edit($id, CategoryRepository $categoryRepository, Request $request, EntityManagerInterface $em, SluggerInterface $slugger, ProductRepository $productRepository)
     {
         $category = $categoryRepository->find($id);
 
@@ -75,9 +76,13 @@ class CategoryController extends AbstractController
 
         $formView = $form->createView();
 
+        // // Récupérer tous les produits
+        // $allProducts = $productRepository->findAll();
+
         return $this->render('category/edit.html.twig', [
             'category' => $category,
-            'formView' => $formView
+            'formView' => $formView,
+            // 'allProducts' => $allProducts,
         ]);
     }
 }

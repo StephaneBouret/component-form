@@ -2,7 +2,6 @@
 
 namespace App\Form;
 
-use App\Form\NameType;
 use App\Entity\Category;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -14,16 +13,19 @@ class CategoryType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            // ->add('name', TextType::class, [
-            //     'label' => 'Nom de la catégorie',
-            //     'attr' => [
-            //         'placeholder' => 'tapez le nom de la catégorie'
-            //     ]
-            // ])
-            ->add('name', NameType::class, [
-                'data_class' => Category::class,
+            ->add('name', TextType::class, [
                 'label' => 'Nom de la catégorie',
+                'attr' => [
+                    'placeholder' => 'tapez le nom de la catégorie'
+                ]
             ])
+            // ->add('products', EntityType::class, [
+            //     'class' => Product::class,
+            //     'choice_label' => 'name',
+            //     'multiple' => true,
+            //     'expanded' => true, // Permet d'afficher les cases à cocher
+            //     'by_reference' => false, // Assure que les changements sont bien pris en compte
+            // ])
         ;
     }
 

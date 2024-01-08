@@ -1,0 +1,29 @@
+{{ form_start(formView) }}
+{{ form_errors(formView) }}
+<div class="row">
+	<div class="col">
+		{{ form_row(formView.name) }}
+		{{ form_row(formView.price) }}
+	</div>
+	<div class="col">
+		{{ form_row(formView.shortDescription) }}
+		{{ form_row(formView.mainPicture) }}
+		{{ form_row(formView.category) }}
+		{{ form_row(formView.type, {
+            attr: {
+                'data-specific-type-url': path('admin_product_type_select'),
+                'class': 'js-product-form-type'
+            }
+        }) }}
+		<div class="js-specific-type-target">
+			{% if formView.statut is defined %}
+				{{ form_row(formView.statut) }}
+			{% endif %}
+		</div>
+	</div>
+</div>
+<button type="submit" class="btn btn-primary">
+	<i class="fas fa-save"></i>
+	{{ button_text }}
+</button>
+{{ form_end(formView) }}

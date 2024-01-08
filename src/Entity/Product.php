@@ -2,9 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\ProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ProductRepository;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -32,11 +32,11 @@ class Product
     #[ORM\ManyToOne(inversedBy: 'products')]
     private ?Category $category = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $type = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $state = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $statut = null;
 
     public function getId(): ?int
     {
@@ -120,21 +120,21 @@ class Product
         return $this->type;
     }
 
-    public function setType(string $type): static
+    public function setType(?string $type): static
     {
         $this->type = $type;
 
         return $this;
     }
 
-    public function getState(): ?string
+    public function getStatut(): ?string
     {
-        return $this->state;
+        return $this->statut;
     }
 
-    public function setState(string $state): static
+    public function setStatut(?string $statut): static
     {
-        $this->state = $state;
+        $this->statut = $statut;
 
         return $this;
     }

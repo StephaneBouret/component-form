@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -83,8 +84,12 @@ class ProductController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // dd($form->getData());
-            $product->setSlug(strtolower($slugger->slug($product->getName())));
+            // Slug mis en place dans le Doctrine Entity Listener
+            // $product->setSlug(strtolower($slugger->slug($product->getName())));
+            if ($product->getType() === 'Article') {
+                $product->setStatut(null);
+            }
+
             $em->flush();
 
             return $this->redirectToRoute('product_show', [
@@ -99,5 +104,24 @@ class ProductController extends AbstractController
             'product' => $product,
             'formView' => $formView
         ]);
+    }
+
+    #[Route('/admin/product/type-select', name: 'admin_product_type_select')]
+    public function getSpecificTypeSelect(Request $request)
+    {
+        $product = new Product;
+        $product->setType($request->query->get('type'));
+
+        $form = $this->createForm(ProductType::class, $product);
+
+        if (!$form->has('statut')) {
+            return new JsonResponse(['content' => null, 'success' => true]);
+        }
+
+        $html = $this->renderView('partials/_specific_type_name.html.twig', [
+            'productForm' => $form->createView(),
+        ]);
+
+        return new JsonResponse(['content' => $html, 'success' => true]);
     }
 }
