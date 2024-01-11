@@ -4,6 +4,9 @@ namespace App\Form;
 
 use App\Entity\Product;
 use App\Entity\Category;
+use App\Entity\Tag;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
@@ -71,20 +74,34 @@ class ProductType extends AbstractType
                 'required' => false,
                 'label' => 'Type',
                 'placeholder' => '--Choisir un type--',
+            ])
+            ->add('tags', EntityType::class, [
+                'class' => Tag::class,
+                'label' => 'Tags',
+                'multiple' => true, // Permet de sélectionner plusieurs tags
+                'expanded' => true, // Affiche la liste déroulante de manière étendue
+                'choice_label' => 'name', // Le champ de Tag utilisé comme libellé dans le formulaire
+                'placeholder' => '-- Choisissez des tags --',
+                'required' => false,
+                'by_reference' => false, // Assure que les changements sont bien pris en compte
+                'query_builder' => function (EntityRepository $er): QueryBuilder {
+                    return $er->createQueryBuilder('t')
+                        ->orderBy('t.name', 'ASC');
+                }
             ]);
 
-            $builder->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
-                /** @var Product|null $data */
-                $data = $event->getData();
-                if (!$data) {
-                    return;
-                }
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+            /** @var Product|null $data */
+            $data = $event->getData();
+            if (!$data) {
+                return;
+            }
 
-                $this->setupSpecificStatusNameField(
-                    $event->getForm(),
-                    $data->getType()
-                );
-            });
+            $this->setupSpecificStatusNameField(
+                $event->getForm(),
+                $data->getType()
+            );
+        });
 
         // if ($type) {
         //     $builder->add('statut', ChoiceType::class, [
@@ -95,7 +112,7 @@ class ProductType extends AbstractType
         //     ]);
         // }
 
-        $builder->get('type')->addEventListener(FormEvents::POST_SUBMIT, function(FormEvent $event) {
+        $builder->get('type')->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
             $form = $event->getForm();
             $this->setupSpecificStatusNameField(
                 $form->getParent(),

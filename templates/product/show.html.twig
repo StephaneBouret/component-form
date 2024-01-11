@@ -18,15 +18,25 @@
 	<h1>{{ product.name }}
 		({{ product.price | amount }})</h1>
 	<div class="row">
-		<div
-			class="col-4">
+		<div class="col-4">
 			<img class="img-fluid" src="{{ product.mainPicture }}" alt="Image de {{ product.name }}">
 		</div>
 		<div class="col">
-			<span class="badge text-bg-primary">
-				{{ product.category.name }}
-			</span>
+			<h3>
+				<span class="badge text-bg-primary">
+					{{ product.category.name }}
+				</span>
+			</h3>
 			<p>{{ product.shortDescription }}</p>
+			{% for tag in product.tags %}
+				<span class="badge rounded-pill text-bg-dark">{{ tag.name }}</span>
+				{# <span class="badge rounded-pill bg-fixed">{{ tag.name }}</span> #}
+			{% endfor %}
 		</div>
 	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script src="{{ asset('assets/js/random_badge.js') }}" defer></script>
 {% endblock %}

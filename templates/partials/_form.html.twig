@@ -1,4 +1,4 @@
-{{ form_start(formView) }}
+{{ form_start(formView, {'attr': {'class': 'filter js-filter-form', 'action': path('product_edit', {'id': product.id}) }}) }}
 {{ form_errors(formView) }}
 <div class="row">
 	<div class="col">
@@ -20,6 +20,13 @@
 				{{ form_row(formView.statut) }}
 			{% endif %}
 		</div>
+		<div class="col-md-3">
+			<button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+				Ajouter des tags
+			</button>
+		</div>
+		<!-- Modal -->
+		{% include "partials/_modal_tags.html.twig" %}
 	</div>
 </div>
 <button type="submit" class="btn btn-primary">

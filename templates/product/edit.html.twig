@@ -6,13 +6,18 @@
 {% endblock %}
 
 {% block body %}
-	<h1>Editer le produit
-		{{ product.name }}</h1>
-	{{ include('partials/_form.html.twig', {button_text: 'Modifier le produit'}) }}
+	<div class="js-filter">
+		<h1>Editer le produit :
+			{{ product.name }}</h1>
+		{{ include('partials/_form.html.twig', {button_text: 'Modifier le produit'}) }}
+	</div>
 {% endblock %}
 
 
 {% block javascripts %}
 	{{ parent() }}
 	<script src="{{ asset('assets/js/admin_product_form.js') }}" defer></script>
+	<script src="{{ asset('assets/js/close_modal.js') }}" defer></script>
+	<script src="{{ asset('assets/js/filter.js') }}" defer></script>
+	{# <script type="module" src="{{ asset('assets/js/modules/Filter.js') }}" defer></script> #}
 {% endblock %}

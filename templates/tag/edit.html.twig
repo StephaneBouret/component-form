@@ -1,13 +1,13 @@
 {% extends "base.html.twig" %}
 
 {% block title %}
-	Modification de
-	{{ category.name }}
+	Editer le tag
+	{{ tag.name }}
 {% endblock %}
 
 {% block body %}
-	<h1>Modifier la catégorie
-		{{ category.name }}</h1>
+	<h1>Editer le tag :
+		{{ tag.name }}</h1>
 	{{ form_start(formView) }}
 	{{ form_errors(formView) }}
 	<div class="row">
@@ -17,7 +17,8 @@
 	</div>
 	<button type="submit" class="btn btn-primary">
 		<i class="fas fa-save"></i>
-		Modifier la catégorie
+		Edition
 	</button>
 	{{ form_end(formView) }}
+	{# {{ include('partials/_form.html.twig', {button_text: 'Modifier le produit'}) }} #}
 {% endblock %}
