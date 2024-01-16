@@ -6,10 +6,11 @@
 
 {% block body %}
 	<h1>Nouveau produit</h1>
-{{ include('partials/_form.html.twig', {button_text: 'Créer le produit'}) }}
+	{{ include('partials/_form.html.twig', {button_text: 'Créer le produit'}) }}
 {% endblock %}
 
 {% block javascripts %}
 	{{ parent() }}
 	<script src="{{ asset('assets/js/admin_product_form.js') }}" defer></script>
+	<script src="{{ asset('assets/js/tags.js') }}" defer></script>
 {% endblock %}

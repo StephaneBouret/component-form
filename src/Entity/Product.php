@@ -40,7 +40,7 @@ class Product
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $statut = null;
 
-    #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'products')]
+    #[ORM\ManyToMany(targetEntity: Tag::class, mappedBy: 'products', cascade: ['persist'])]
     private Collection $tags;
 
     public function __construct()

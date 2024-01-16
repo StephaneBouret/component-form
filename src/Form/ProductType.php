@@ -2,23 +2,24 @@
 
 namespace App\Form;
 
+use App\Form\TagType;
 use App\Entity\Product;
 use App\Entity\Category;
-use App\Entity\Tag;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class ProductType extends AbstractType
 {
@@ -31,19 +32,12 @@ class ProductType extends AbstractType
                     'placeholder' => 'Tapez le nom du produit'
                 ],
             ])
-            // ->add('name', NameType::class, [
-            //     'data_class' => Product::class,
-            //     'label' => false
-            // ])
             ->add('shortDescription', TextareaType::class, [
                 'label' => 'Description courte',
                 'attr' => [
                     'placeholder' => 'Tapez une description assez courte mais parlante pour le visiteur'
                 ]
             ])
-            // ->add('shortDescription', null, [
-            //     'rows' => 5
-            // ])
             ->add('price', MoneyType::class, [
                 'label' => 'Prix du produit',
                 'attr' => [
@@ -75,20 +69,18 @@ class ProductType extends AbstractType
                 'label' => 'Type',
                 'placeholder' => '--Choisir un type--',
             ])
-            ->add('tags', EntityType::class, [
-                'class' => Tag::class,
-                'label' => 'Tags',
-                'multiple' => true, // Permet de sélectionner plusieurs tags
-                'expanded' => true, // Affiche la liste déroulante de manière étendue
-                'choice_label' => 'name', // Le champ de Tag utilisé comme libellé dans le formulaire
-                'placeholder' => '-- Choisissez des tags --',
-                'required' => false,
-                'by_reference' => false, // Assure que les changements sont bien pris en compte
-                'query_builder' => function (EntityRepository $er): QueryBuilder {
-                    return $er->createQueryBuilder('t')
-                        ->orderBy('t.name', 'ASC');
-                }
-            ]);
+            ->add('tags', CollectionType::class, [
+                'entry_type'   => TagType::class,
+                'entry_options' => ['label' => false],
+                'allow_add'    => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'prototype' => true,
+                'constraints' => [
+                    new Callback([$this, 'validateTags']),
+                ],
+            ])
+            ;
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
             /** @var Product|null $data */
@@ -119,6 +111,22 @@ class ProductType extends AbstractType
                 $form->getData()
             );
         });
+    }
+
+    public function validateTags($tags, ExecutionContextInterface $context)
+    {
+        // Convertissez la PersistentCollection en tableau
+        $tagsArray = $tags->toArray();
+        // $tagsArray est maintenant un tableau d'entités Tag
+
+        // Exemple de validation
+        $tagNames = array_map(function ($tag) {
+            return $tag->getName();
+        }, $tagsArray);
+
+        if (count($tagNames) !== count(array_unique($tagNames))) {
+            $context->buildViolation('Certains tags sont en double. Veuillez en sélectionner des uniques.')->addViolation();
+        }
     }
 
     private function setupSpecificStatusNameField(FormInterface $form, ?string $type)

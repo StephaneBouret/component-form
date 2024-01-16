@@ -1,4 +1,15 @@
-{{ form_start(formView, {'attr': {'class': 'filter js-filter-form', 'action': path('product_edit', {'id': product.id}) }}) }}
+{# {% import _self as formMacros %} #}
+{% macro printTagsRow(tag) %}
+	<div class="d-flex align-items-center justify-content-between js-tags-item">
+		<a href="#" class="js-remove-tag">
+			<span class="fa fa-close"></span>
+		</a>
+		{{ form_errors(tag.name) }}
+		{{ form_row(tag.name) }}
+	</div>
+{% endmacro %}
+
+{{ form_start(formView) }}
 {{ form_errors(formView) }}
 <div class="row">
 	<div class="col">
@@ -20,13 +31,29 @@
 				{{ form_row(formView.statut) }}
 			{% endif %}
 		</div>
-		<div class="col-md-3">
-			<button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-				Ajouter des tags
-			</button>
+		<h3>Tags</h3>
+		<div class="row js-tags-wrapper" data-prototype="{{ _self.printTagsRow(formView.tags.vars.prototype)|e('html_attr') }}" data-index="{{ formView.tags|length > 0 ? formView.tags|last.vars.name + 1 : 0 }}">
+			{% for tag in formView.tags|sort((a, b) => a.name < b.name ? -1 : 1) %}
+				{# Solution 2 #}
+				{# {{ formMacros.printTagsRow(tag) }} #}
+				{{ _self.printTagsRow(tag) }}
+			{# Solution 1 #}
+				{# <div class="d-flex align-items-center justify-content-between js-tags-item">
+					<a href="#" class="js-remove-tag">
+					<span class="fa fa-close"></span>
+					</a>
+					{{ form_errors(tag.name) }}
+					{{ form_row(tag.name) }}
+					</div> #}
+			{% endfor %}
+			<a href="#" class="js-add-tag text-decoration-none">
+				<span class="fa fa-plus-circle"></span>
+				Ajout d'un autre tag
+			</a>
 		</div>
-		<!-- Modal -->
-		{% include "partials/_modal_tags.html.twig" %}
+        {% if not formView.tags.rendered %}
+            {{ form_widget(formView.tags) }}
+        {% endif %}
 	</div>
 </div>
 <button type="submit" class="btn btn-primary">

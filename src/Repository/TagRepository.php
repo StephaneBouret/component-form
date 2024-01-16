@@ -2,7 +2,6 @@
 
 namespace App\Repository;
 
-use App\Data\SearchData;
 use App\Entity\Tag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -20,19 +19,6 @@ class TagRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Tag::class);
-    }
-
-    public function findFilteredTags(SearchData $searchData)
-    {
-        $queryBuilder = $this->createQueryBuilder('t');
-
-        if ($searchData->getQ()) {
-            $queryBuilder
-                ->andWhere('t.name LIKE :searchTerm')
-                ->setParameter('searchTerm', '%' . $searchData->getQ() . '%');
-        }
-
-        return $queryBuilder->getQuery()->getResult();
     }
 
     //    /**

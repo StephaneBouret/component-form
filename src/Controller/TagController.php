@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Tag;
-use App\Form\TagType;
+use App\Form\AdminTagType;
 use App\Repository\TagRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +17,7 @@ class TagController extends AbstractController
     public function create(Request $request, EntityManagerInterface $em): Response
     {
         $tag = new Tag;
-        $form = $this->createForm(TagType::class, $tag);
+        $form = $this->createForm(AdminTagType::class, $tag);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -40,7 +40,7 @@ class TagController extends AbstractController
     {
         $tag = $tagRepository->find($id);
 
-        $form = $this->createForm(TagType::class, $tag);
+        $form = $this->createForm(AdminTagType::class, $tag);
 
         $form->handleRequest($request);
 

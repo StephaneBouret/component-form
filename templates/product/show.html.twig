@@ -28,7 +28,7 @@
 				</span>
 			</h3>
 			<p>{{ product.shortDescription }}</p>
-			{% for tag in product.tags %}
+			{% for tag in product.tags|sort((a, b) => a.name < b.name ? -1 : 1) %}
 				<span class="badge rounded-pill text-bg-dark">{{ tag.name }}</span>
 				{# <span class="badge rounded-pill bg-fixed">{{ tag.name }}</span> #}
 			{% endfor %}

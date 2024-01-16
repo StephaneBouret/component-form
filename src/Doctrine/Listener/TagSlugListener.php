@@ -21,8 +21,7 @@ class TagSlugListener
 
     public function prePersist(Tag $entity)
     {
-        if (empty($entity->getSlug())) {
-            // SluggerInterface
+        if (empty($entity->getSlug()) && $entity->getName() !== null) {
             $entity->setSlug(strtolower($this->slugger->slug($entity->getName())));
         }
     }

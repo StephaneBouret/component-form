@@ -2,19 +2,20 @@
 
 namespace App\Controller;
 
+use App\Entity\Tag;
 use App\Entity\Product;
-use App\Data\SearchData;
 use App\Form\ProductType;
-use App\Form\SearchFormType;
 use App\Repository\ProductRepository;
+use Symfony\Component\Form\FormEvent;
 use App\Repository\CategoryRepository;
-use App\Repository\TagRepository;
+use Symfony\Component\Form\FormEvents;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ProductController extends AbstractController
@@ -60,7 +61,6 @@ class ProductController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $em->persist($product);
             $em->flush();
 
@@ -78,24 +78,40 @@ class ProductController extends AbstractController
     }
 
     #[Route('/admin/product/{id}/edit', name: 'product_edit')]
-    public function edit($id, ProductRepository $productRepository, Request $request, EntityManagerInterface $em, TagRepository $tagRepository)
+    public function edit($id, ProductRepository $productRepository, Request $request, EntityManagerInterface $em)
     {
         $product = $productRepository->find($id);
+
+        // Solution pour éviter les incrémentations en BDD
+        // Récupérer les tags existants du produit
+        $originalTags = $product->getTags()->toArray();
+
         $form = $this->createForm(ProductType::class, $product);
 
-        // $data = new SearchData;
-        // $searchForm = $this->createForm(SearchFormType::class, $data);
-
         $form->handleRequest($request);
-        // $searchForm->handleRequest($request);
-
-        // dump($data->getQ());
-
-        // $tags = $tagRepository->findFilteredTags($data);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Slug mis en place dans le Doctrine Entity Listener
-            // $product->setSlug(strtolower($slugger->slug($product->getName())));
+            // Solution pour éviter les incrémentations en BDD
+            // Comparer les tags existants avec les nouveaux tags sélectionnés
+            foreach ($originalTags as $originalTag) {
+                if (!$product->getTags()->contains($originalTag)) {
+                    // Si un tag existant n'est pas sélectionné, le retirer
+                    $product->removeTag($originalTag);
+                }
+            }
+
+            // Solution pour éviter les incrémentations en BDD
+            // Parcourir les nouveaux tags pour vérifier s'ils existent déjà en base de données
+            foreach ($product->getTags() as $tag) {
+                $existingTag = $em->getRepository(Tag::class)->findOneBy(['name' => $tag->getName()]);
+
+                if ($existingTag) {
+                    // Si le tag existe déjà, utilisez le tag existant
+                    $product->removeTag($tag); // Supprimer le tag nouvellement ajouté
+                    $product->addTag($existingTag); // Ajouter le tag existant
+                }
+            }
+
             if ($product->getType() === 'Article') {
                 $product->setStatut(null);
             }
@@ -108,18 +124,9 @@ class ProductController extends AbstractController
             ]);
         }
 
-        // if ($request->isXmlHttpRequest()) {
-        //     $tagsHtml = $this->renderView('partials/_tags.html.twig', [
-        //         'tags' => $tags,
-        //         'formView' => $form->createView(),
-        //     ]);
-        //     return new JsonResponse(['content' => $tagsHtml, 'success' => true]);
-        // }
-
         return $this->render('product/edit.html.twig', [
             'product' => $product,
             'formView' => $form,
-            // 'searchForm' => $searchForm->createView(),
         ]);
     }
 
