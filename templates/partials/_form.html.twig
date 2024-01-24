@@ -1,7 +1,6 @@
-{# {% import _self as formMacros %} #}
 {% macro printTagsRow(tag) %}
 	<div class="d-flex align-items-center justify-content-between js-tags-item">
-		<a href="#" class="js-remove-tag">
+		<a href="#" class="js-remove-tag mt-3 me-3">
 			<span class="fa fa-close"></span>
 		</a>
 		{{ form_errors(tag.name) }}
@@ -33,23 +32,24 @@
 		</div>
 		<h3>Tags</h3>
 		<div class="row js-tags-wrapper" data-prototype="{{ _self.printTagsRow(formView.tags.vars.prototype)|e('html_attr') }}" data-index="{{ formView.tags|length > 0 ? formView.tags|last.vars.name + 1 : 0 }}">
-			{% for tag in formView.tags|sort((a, b) => a.name < b.name ? -1 : 1) %}
-				{# Solution 2 #}
-				{# {{ formMacros.printTagsRow(tag) }} #}
+			{% for tag in formView.tags|sort %}
 				{{ _self.printTagsRow(tag) }}
-			{# Solution 1 #}
-				{# <div class="d-flex align-items-center justify-content-between js-tags-item">
-					<a href="#" class="js-remove-tag">
-					<span class="fa fa-close"></span>
-					</a>
-					{{ form_errors(tag.name) }}
-					{{ form_row(tag.name) }}
-					</div> #}
 			{% endfor %}
-			<a href="#" class="js-add-tag text-decoration-none">
-				<span class="fa fa-plus-circle"></span>
-				Ajout d'un autre tag
-			</a>
+			<div class="d-flex flex-column">
+				<a href="#" class="js-add-tag text-decoration-none">
+					<span class="fa fa-plus-circle"></span>
+					Ajout d'un autre tag
+				</a>
+				ou
+				<a href="#" class="js-create-new-tag text-decoration-none">
+        			<span class="fa fa-plus-circle"></span>
+        			Créer un nouveau tag
+    			</a>
+			</div>
+			<div class="js-new-tag-input" style="display: none;">
+        		{{ form_row(formView.newTag) }}
+        		<a href="#" class="js-cancel-new-tag text-decoration-none">Annuler</a>
+    		</div>
 		</div>
         {% if not formView.tags.rendered %}
             {{ form_widget(formView.tags) }}

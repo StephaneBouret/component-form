@@ -10,12 +10,15 @@
 		{% block stylesheets %}
 			{# {{ encore_entry_link_tags('app') }} #}
 			<link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+			<link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
 			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 		{% endblock %}
 
 		{% block javascripts %}
 			{# {{ encore_entry_script_tags('app') }} #}
 			<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}" defer></script>
+			<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js" defer></script>
 		{% endblock %}
 	</head>
 	<body>

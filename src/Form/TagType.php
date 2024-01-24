@@ -31,8 +31,11 @@ class TagType extends AbstractType
                 'label' => 'Nom du tag',
                 'required' => false,
                 'choices' => $this->getTagChoices($builder->getData()),
-            ])
-            ;
+                'placeholder' => null,
+                'attr' => [
+                    'data-trigger' => '',
+                ],
+            ]);
     }
 
     private function getTagChoices(?Tag $tag): array

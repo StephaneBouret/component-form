@@ -9,9 +9,10 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormInterface;
+use App\Form\EventListener\NewTagEventListener;
+use App\Validator\Constraints\UniqueTags;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -19,10 +20,16 @@ use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class ProductType extends AbstractType
 {
+    protected $newTagEventListener;
+
+    public function __construct(NewTagEventListener $newTagEventListener)
+    {
+        $this->newTagEventListener = $newTagEventListener;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -77,10 +84,19 @@ class ProductType extends AbstractType
                 'by_reference' => false,
                 'prototype' => true,
                 'constraints' => [
-                    new Callback([$this, 'validateTags']),
+                    new UniqueTags(),
                 ],
             ])
-            ;
+            // Pour l'ajout du lien concernant la création du Tag
+            ->add('newTag', TextType::class, [
+                'label' => 'Nouveau tag',
+                'required' => false,
+                'mapped' => false, // Ne pas mapper ce champ avec l'entité
+                'attr' => [
+                    'placeholder' => 'Tapez le nom d\'un tag'
+                ],
+            ]);
+
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
             /** @var Product|null $data */
@@ -111,22 +127,9 @@ class ProductType extends AbstractType
                 $form->getData()
             );
         });
-    }
 
-    public function validateTags($tags, ExecutionContextInterface $context)
-    {
-        // Convertissez la PersistentCollection en tableau
-        $tagsArray = $tags->toArray();
-        // $tagsArray est maintenant un tableau d'entités Tag
-
-        // Exemple de validation
-        $tagNames = array_map(function ($tag) {
-            return $tag->getName();
-        }, $tagsArray);
-
-        if (count($tagNames) !== count(array_unique($tagNames))) {
-            $context->buildViolation('Certains tags sont en double. Veuillez en sélectionner des uniques.')->addViolation();
-        }
+        // Listener pour la gestion du bouton "Création du Tag"
+        $builder->addEventListener(FormEvents::POST_SUBMIT, [$this->newTagEventListener, 'onPostSubmit']);
     }
 
     private function setupSpecificStatusNameField(FormInterface $form, ?string $type)

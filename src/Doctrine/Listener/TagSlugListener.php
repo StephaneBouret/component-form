@@ -22,14 +22,18 @@ class TagSlugListener
     public function prePersist(Tag $entity)
     {
         if (empty($entity->getSlug()) && $entity->getName() !== null) {
-            $entity->setSlug(strtolower($this->slugger->slug($entity->getName())));
+            $entity
+                ->setName(ucwords($entity->getName()))
+                ->setSlug(strtolower($this->slugger->slug($entity->getName())));
         }
     }
 
     public function preUpdate(Tag $entity, PreUpdateEventArgs $event)
     {
         if ($event->hasChangedField('name')) {
-            $entity->setSlug(strtolower($this->slugger->slug($entity->getName())));
+            $entity
+                ->setName(ucwords($entity->getName()))
+                ->setSlug(strtolower($this->slugger->slug($entity->getName())));
         }
     }
 }
